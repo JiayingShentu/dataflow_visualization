@@ -1,0 +1,41 @@
+<!DOCTYPE html>
+<html>
+
+<body>
+    <script>
+        const ws = new WebSocket('ws://localhost:3000');
+        ws.addEventListener('open', () => {
+            console.log('连接上服务器了');
+            var i_data = [];
+            var socketPause = true;
+            // 开始获取数据
+            ws.send('start')
+            ws.addEventListener('message', ({
+                data
+            }) => {
+                i_data.push(data);
+                console.log(i_data);
+            })
+            var renderInterval = setInterval(() => {
+                if (i_data.length <= 100 && socketPause === true) {
+                    ws.send('resume')
+                    socketPause = false
+                }
+                if (i_data.length >= 400 && socketPause === false) {
+                    ws.send('pause')
+                    socketPause = true
+                }
+                if (i_data.length <= 0) return;
+                var result = i_data[0];
+                console.log('result:' + result);
+                // this.$refs.frequency.addData(result.data)
+                // this.$refs.waterFall.addData(result.data.map(item => item[1]))
+                i_data.shift();
+                console.log('i_data:' + i_data)
+            }, 25)
+
+        })
+    </script>
+</body>
+
+</html>
